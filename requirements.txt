@@ -1,0 +1,5 @@
+#pip install -r requirements.txt 
+
+numpy>=1.21.0
+matplotlib>=3.4.1
+sklearn>=0.24
