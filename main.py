@@ -4,6 +4,7 @@ import argparse
 from time import sleep
 import json
 from Api import Api
+from Database import Database
 
 
 def cli():
@@ -11,7 +12,7 @@ def cli():
     parser.add_argument('--p', type=int, nargs=1, default=10, required=False,
                         help='period of time (days) that should influence the forecast')
     parser.add_argument('--f', type=str, nargs=1, default='settings.json',
-                        help='directory of json-file containing coins of interests', required=False)
+                        help='directory of json-file containing runtime related settings', required=False)
 
     args = parser.parse_args()
     return args.p, args.f
@@ -30,27 +31,31 @@ def main():
     # get parameters from command line
     period, file_name = cli()
     # read settings
-    coi = read_settings(file_name)
+    coi = read_settings(file_name[0])
 
     # create the Api
     api = Api(url='https://api.coinpaprika.com/v1/')
-    # todo: init database
+    db = Database('data.sqlite')
+
+    # collect coin information
+    for id in coi:
+        if not db.get_coin(id):
+            _json = api.get_coin(id)
+            if 'error' not in _json.keys():
+                db.add_coin(_json['id'], _json['name'], _json['symbol'], _json['type'])
+            else:
+                print(f"'{id}': {_json['error']}")
+        else:
+            print (f"'{id}' already in database")
 
     # todo: read refreshrate  (maybe from settings or cli)
     refresh_rate = 12 #times per minute
 
-    while True:
-        # get some values
-        for c in coi:
-            tmp_json = api.get_coin(c)
-            print(tmp_json['name'] + ": " + str(tmp_json['rank']))
-
-        # todo: save coins in database
-
+    # while True:
         # todo: fancy processing on database
 
         # todo: show information of processing and 'the matrix'
-        sleep(60/refresh_rate)
+        # sleep(60/refresh_rate)
 
 
 if __name__ == "__main__":

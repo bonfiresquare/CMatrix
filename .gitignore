@@ -1,5 +1,10 @@
 #PyCharm
 /venv/
 .idea/*
+
+#Custom
 \#*
+data.sqlite
+
+#Other
 __pycache__/
