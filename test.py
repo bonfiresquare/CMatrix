@@ -8,7 +8,9 @@ params = {
     'amount' : 1
 }
 
-Response = requests.get('https://api.coinpaprika.com/v1/price-converter', params=params)
+#Response = requests.get('https://api.coinpaprika.com/v1/price-converter', params=params)
+#Response = requests.get('https://api.coinpaprika.com/v1/coins')
+Response = requests.get('https://api.coinpaprika.com/v1/coins/usdt-tether')
 Json = Response.json()
 print(Json)
 #Data = Response.text
