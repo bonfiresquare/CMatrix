@@ -1,0 +1,23 @@
+{"coinsOfInterest": [
+  "btc-bitcoin",
+  "eth-ethereum",
+  "usdt-tether",
+  "bnb-binance-coin",
+  "ada-cardano",
+  "xrp-xrp",
+  "hex-hex",
+  "doge-dogecoin",
+  "usdc-usd-coin",
+  "dot-polkadot",
+  "uni-uniswap",
+  "bch-bitcoin-cash",
+  "ltc-litecoin",
+  "sol-solana",
+  "busd-binance-usd",
+  "link-chainlink",
+  "icp-internet-computer",
+  "wbtc-wrapped-bitcoin",
+  "matic-polygon",
+  "xlm-stellar"
+] }
+
