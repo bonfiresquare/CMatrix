@@ -5,6 +5,10 @@ class Api:
     def __init__(self, url):
         self._BaseUrl = url
 
+    def get_coins(self):
+        response = requests.get(self._BaseUrl + 'coins')
+        return response.json()
+
     def get_coin(self, coin_id):
         response = requests.get(self._BaseUrl + 'coins/' + coin_id)
         return response.json()
