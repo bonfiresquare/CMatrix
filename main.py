@@ -35,14 +35,16 @@ def main():
         if coin['rank'] > c['coins']['maxrank']:
             break
         if (coin['id'],) not in data:
-            db.exec(f"INSERT INTO '{table}' "
-                    f"VALUES ("
-                    f"'{coin['id']}', "
-                    f"'{coin['name']}', "
-                    f"'{coin['symbol']}', "
-                    f"'{coin['type']}', "
-                    f"'{coin['rank']}', "
-                    f"0)")
+            db.exec(
+                f"INSERT INTO '{table}' "
+                f"VALUES ("
+                f"'{coin['id']}', "
+                f"'{coin['name']}', "
+                f"'{coin['symbol']}', "
+                f"'{coin['type']}', "
+                f"'{coin['rank']}', "
+                f"0)"
+            )
 
     # update watchlist in database
     table = 'Coin'
