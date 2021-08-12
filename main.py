@@ -32,15 +32,26 @@ def main():
     db = Database(c['runtime']['database'])
 
     # collect information for coins
+    table = 'Coin'
+    data = db.exec(f"SELECT coin_id FROM '{table}'")
     for coin in api.get_coins():
         if coin['rank'] > c['coins']['maxrank']:
             break
-        if not db.get_coin(coin['id']):
-            db.add_coin(coin['id'], coin['name'], coin['symbol'], coin['type'], coin['rank'])
-        else:
-            print(f"'{coin['id']}' already in database")
+        if (coin['id'],) not in data:
+            db.exec(f"INSERT INTO '{table}' VALUES ('{coin['id']}', '{coin['name']}', '{coin['symbol']}', '{coin['type']}', '{coin['rank']}', 0)")
 
-    # add watchlist to database
+    # update watchlist in database
+    table = 'Coin'
+    remaining_watchlist = c['coins']['watchlist']
+    data = db.exec(f"SELECT coin_id from {table} WHERE watch = 1")
+    if data:
+        for coin in data:
+            if coin[0] not in remaining_watchlist:
+                db.exec(f"UPDATE {table} SET watch = 0 WHERE coin_id = '{coin[0]}'")
+            else:
+                remaining_watchlist.remove(coin[0])
+    for coin_id in remaining_watchlist:
+        db.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
 
     # while True:
         # todo: fancy processing on database
@@ -50,11 +61,14 @@ def main():
         # sleep interval
         # sleep(60/c['runtime']['refreshrate'])
 
-    # output exit information
-    print("\nexit program")
+    db.terminate()
 
 
 if __name__ == "__main__":
     # run in console:
     # python cmdline_args.py --period 10 --fileName 'config.yml'
+
     main()
+
+    # output exit information
+    print("\nexit program")

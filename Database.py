@@ -20,9 +20,8 @@ class Database:
 
     def build(self):
         tables = dict(
-            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, type CHAR(1) NOT NULL, rank INT(2)',
-            Account='coin_id CHAR(1) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL',
-            Watchlist='coin_id CHAR(1) PRIMARY KEY NOT NULL'
+            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, type CHAR(1) NOT NULL, rank INT(2) NOT NULL, watch BOOLEAN NOT NULL',
+            Account='coin_id CHAR(1) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL'
         )
         for name in tables.keys():
             query = f'CREATE TABLE {name} ({tables[name]})'
@@ -35,20 +34,18 @@ class Database:
         self._session = None
         self.__instance = None
 
-    def get_coin(self, coin_id):
-        query = f"SELECT * FROM Coin WHERE coin_id = '{coin_id}'"
+    def exec(self, query, halt=False):
+        try:
+            response = self._session.execute(query)
+            self._session.commit()
+        except Exception as exception:
+            if halt:
+                raise exception
+            else:
+                print(f"Error while processing:\n\tQuery: '{query}'\n\tError: '{exception}'")
+                return exception
+
         data = []
-        for row in self._session.execute(query):
+        for row in response:
             data.append(row)
         return data
-
-    def add_coin(self, coin_id, name, symbol, type, rank):
-        query = f"INSERT INTO Coin VALUES ('{coin_id}', '{name}', '{symbol}', '{type}', '{rank}')"
-        try:
-            self._session.execute(query)
-        except sqlite.IntegrityError as e:
-            print(f"Integrity error for query '{query}':\n\t{e}")
-        finally:
-            self._session.commit()
-
-
