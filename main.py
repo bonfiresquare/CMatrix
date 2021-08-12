@@ -24,14 +24,14 @@ def load_config(path):
 def main():
     # initialize runtime parameters and objects
     period, configfile = cli()
-    c = load_cofig(configfile[0])
-    api = Api(c['runtime']['api'])
+    c = load_config(configfile)
+    Api.set_url(c['runtime']['api'])
     db = Database(c['runtime']['database'])
 
     # collect information for coins
     table = 'Coin'
     data = db.exec(f"SELECT coin_id FROM '{table}'")
-    for coin in api.get_coins():
+    for coin in Api.get_coins():
         if coin['rank'] > c['coins']['maxrank']:
             break
         if (coin['id'],) not in data:
