@@ -20,7 +20,8 @@ class Database:
 
     def build(self):
         tables = dict(
-            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, type CHAR(1) NOT NULL, rank INT(2) NOT NULL, watch BOOLEAN NOT NULL',
+            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, '
+                 'type CHAR(1) NOT NULL, rank INT(2) NOT NULL, watch BOOLEAN NOT NULL',
             Account='coin_id CHAR(1) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL'
         )
         for name in tables.keys():

@@ -1,11 +1,8 @@
-import sys
 import argparse
 import yaml
-from time import sleep
 from Api import Api
 from Database import Database
 
-sys.path.append(".")
 
 def cli():
     parser = argparse.ArgumentParser(description='CMatrix helps to decide when to switch between currencies.')
@@ -18,7 +15,7 @@ def cli():
     return args.p, args.f
 
 
-def load_cofig(path):
+def load_config(path):
     # read the config file
     with open(path, 'r') as content:
         return yaml.safe_load(content)
@@ -38,7 +35,14 @@ def main():
         if coin['rank'] > c['coins']['maxrank']:
             break
         if (coin['id'],) not in data:
-            db.exec(f"INSERT INTO '{table}' VALUES ('{coin['id']}', '{coin['name']}', '{coin['symbol']}', '{coin['type']}', '{coin['rank']}', 0)")
+            db.exec(f"INSERT INTO '{table}' "
+                    f"VALUES ("
+                    f"'{coin['id']}', "
+                    f"'{coin['name']}', "
+                    f"'{coin['symbol']}', "
+                    f"'{coin['type']}', "
+                    f"'{coin['rank']}', "
+                    f"0)")
 
     # update watchlist in database
     table = 'Coin'
