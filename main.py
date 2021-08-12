@@ -31,16 +31,16 @@ def main():
     api = Api(c['runtime']['api'])
     db = Database(c['runtime']['database'])
 
-    # collect information for coins of interest
-    for coin_id in c['coins']:
-        if not db.get_coin(coin_id):
-            _json = api.get_coin(coin_id)
-            if 'error' not in _json.keys():
-                db.add_coin(_json['id'], _json['name'], _json['symbol'], _json['type'])
-            else:
-                print(f"'{coin_id}': {_json['error']}")
+    # collect information for coins
+    for coin in api.get_coins():
+        if coin['rank'] > c['coins']['maxrank']:
+            break
+        if not db.get_coin(coin['id']):
+            db.add_coin(coin['id'], coin['name'], coin['symbol'], coin['type'], coin['rank'])
         else:
-            print (f"'{coin_id}' already in database")
+            print(f"'{coin['id']}' already in database")
+
+    # add watchlist to database
 
     # while True:
         # todo: fancy processing on database

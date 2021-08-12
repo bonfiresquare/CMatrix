@@ -20,8 +20,9 @@ class Database:
 
     def build(self):
         tables = dict(
-            Coin='coin_id CHAR(2) PRIMARY KEY NOT NULL, name CHAR(2) NOT NULL, symbol CHAR(1) NOT NULL, type CHAR(1) NOT NULL',
-            Account='coin_id CHAR(2) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL'
+            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, type CHAR(1) NOT NULL, rank INT(2)',
+            Account='coin_id CHAR(1) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL',
+            Watchlist='coin_id CHAR(1) PRIMARY KEY NOT NULL'
         )
         for name in tables.keys():
             query = f'CREATE TABLE {name} ({tables[name]})'
@@ -35,18 +36,18 @@ class Database:
         self.__instance = None
 
     def get_coin(self, coin_id):
-        query = f'SELECT * FROM Coin WHERE coin_id = "{coin_id}"'
+        query = f"SELECT * FROM Coin WHERE coin_id = '{coin_id}'"
         data = []
         for row in self._session.execute(query):
             data.append(row)
         return data
 
-    def add_coin(self, coin_id, name, symbol, type):
-        query = f'INSERT INTO Coin VALUES ("{coin_id}", "{name}", "{symbol}", "{type}")'
+    def add_coin(self, coin_id, name, symbol, type, rank):
+        query = f"INSERT INTO Coin VALUES ('{coin_id}', '{name}', '{symbol}', '{type}', '{rank}')"
         try:
             self._session.execute(query)
         except sqlite.IntegrityError as e:
-            print(f'Integrity error for query \'{query}\':\n\t{e}')
+            print(f"Integrity error for query '{query}':\n\t{e}")
         finally:
             self._session.commit()
 
