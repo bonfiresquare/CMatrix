@@ -1,6 +1,7 @@
 import argparse
 import yaml
 from Api import Api
+from Config import Config
 from Database import Database
 
 
@@ -15,24 +16,18 @@ def cli():
     return args.p, args.f
 
 
-def load_config(path):
-    # read the config file
-    with open(path, 'r') as content:
-        return yaml.safe_load(content)
-
-
 def main():
     # initialize runtime parameters and objects
     period, configfile = cli()
-    c = load_config(configfile)
-    Api.set_url(c['runtime']['api'])
-    db = Database(c['runtime']['database'])
+    Config.init(configfile)
+    Api.init(Config.runtime.api)
+    db = Database(Config.runtime.database)
 
     # collect information for coins
     table = 'Coin'
     data = db.exec(f"SELECT coin_id FROM '{table}'")
     for coin in Api.get_coins():
-        if coin['rank'] > c['coins']['maxrank']:
+        if coin['rank'] > Config.coins.maxrank:
             break
         if (coin['id'],) not in data:
             db.exec(
@@ -48,7 +43,7 @@ def main():
 
     # update watchlist in database
     table = 'Coin'
-    remaining_watchlist = c['coins']['watchlist']
+    remaining_watchlist = Config.coins.watchlist
     data = db.exec(f"SELECT coin_id from {table} WHERE watch = 1")
     if data:
         for coin in data:
@@ -65,10 +60,10 @@ def main():
         # todo: show information of processing and 'the matrix'
 
         # sleep interval
-        # sleep(60/c['runtime']['refreshrate'])
+        # sleep(60/Config.runtime.refreshrate)
 
     db.terminate()
-
+    Config.write_config()
 
 if __name__ == "__main__":
     # run in console:

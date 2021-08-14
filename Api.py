@@ -1,19 +1,52 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 import requests
+from requests.models import Response
 
 
 class Api (ABC):
     _base_url = None
 
     @staticmethod
+    def review(response):
+        status = {
+            400: Exception('invalid parameters'),
+            404: Exception('not found'),
+            429: Exception('too many requests')
+        }
+        if response.status_code in status.keys():
+            raise status[response.status_code]
+        else:
+            return response.json()
+
+    @staticmethod
+    def init(url):
+        Api._base_url = url
+        return
+
+    @staticmethod
     def get_coins():
         response = requests.get(Api._base_url + 'coins')
-        return response.json()
+        return Api.review(response)
+
+    @staticmethod
+    def get_exchanges():
+        response = requests.get(Api._base_url + 'exchanges')
+        return Api.review(response)
 
     @staticmethod
     def get_coin(coin_id):
         response = requests.get(Api._base_url + 'coins/' + coin_id)
-        return response.json()
+        return Api.review(response)
+
+    @staticmethod
+    def get_coin_markets(coin_id, params):
+        response = requests.get(Api._base_url + 'coins/' + coin_id + '/markets', params=params)
+        return Api.review(response)
+
+    @staticmethod
+    def get_exchange_markets(exchange_id, params):
+        response = requests.get(Api._base_url + 'exchanges/' + exchange_id + '/markets', params=params)
+        return Api.review(response)
 
     @staticmethod
     def convert(coin_id, quote, amount):
@@ -23,8 +56,3 @@ class Api (ABC):
             'amount': amount
         }
         response = requests.get(Api._base_url + 'price-converter', params=params)
-        pass
-
-    @staticmethod
-    def set_url(url):
-        Api._base_url = url
