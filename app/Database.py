@@ -7,14 +7,6 @@ class Database (ABC):
     _file = None
     _session = None
 
-    def __init__(self, path):
-        self._path = path
-        if os.path.exists(path):
-            self._session = sqlite.connect(self._path)
-        else:
-            self._session = sqlite.connect(self._path)
-            self.build()
-
     @staticmethod
     def init(file):
         Database._file = file

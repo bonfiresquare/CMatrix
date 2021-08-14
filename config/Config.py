@@ -2,11 +2,20 @@ import yaml
 from abc import ABC
 from types import MappingProxyType
 
+
 class Attribute:
     pass
 
+
 class Config (ABC):
     _file = None
+
+    @staticmethod
+    def init(file):
+        Config._file = file
+        attributes = Config.load()
+        Config._add_attribute(Config, attributes)
+        return
 
     @staticmethod
     def _add_attribute(base, attribute):
@@ -16,10 +25,10 @@ class Config (ABC):
         else:
             for key in attribute:
                 if isinstance(attribute[key], dict):
-                    Config._add_attribute(base, { key: Attribute() } )
+                    Config._add_attribute(base, {key: Attribute()})
                     Config._add_attribute(getattr(base, key), attribute[key])
                 else:
-                    Config._add_attribute(base, { key: attribute[key] } )
+                    Config._add_attribute(base, {key: attribute[key]})
         return
 
     @staticmethod
@@ -31,7 +40,7 @@ class Config (ABC):
         for _key in members:
             if isinstance(members, MappingProxyType):
                 if isinstance(members[_key], Attribute):
-                    if key == None or _key == key:
+                    if not key or _key == key:
                         new_base = getattr(base, _key)
                         attribute[_key] = Config._get_attribute(_key, new_base)
             else:
@@ -49,10 +58,3 @@ class Config (ABC):
         with open(Config._file, 'w') as file:
             yaml.dump(attributes, file)
             file.close()
-
-    @staticmethod
-    def init(file):
-        Config._file = file
-        attributes = Config.load()
-        Config._add_attribute(Config, attributes)
-        return

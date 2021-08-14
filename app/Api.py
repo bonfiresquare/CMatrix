@@ -1,6 +1,5 @@
 from abc import ABC
 import requests
-from requests.models import Response
 
 
 class Api (ABC):
@@ -56,3 +55,4 @@ class Api (ABC):
             'amount': amount
         }
         response = requests.get(Api._base_url + 'price-converter', params=params)
+        return Api.review(response)

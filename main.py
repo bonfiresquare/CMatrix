@@ -1,75 +1,25 @@
 import argparse
-from Api import Api
-from Config import Config
-from Database import Database
+from app import App
 
 
 def cli():
     parser = argparse.ArgumentParser(description='CMatrix helps to decide when to switch between currencies.')
     parser.add_argument('--p', type=int, nargs=1, default=10, required=False,
                         help='period of time (days) that should influence the forecast')
-    parser.add_argument('--f', type=str, nargs=1, default='config.yml',
-                        help='directory of json-file containing runtime related settings', required=False)
 
     args = parser.parse_args()
-    return args.p, args.f
-
-
-def main():
-    # initialize runtime parameters and objects
-    period, configfile = cli()
-    Config.init(configfile)
-    Api.init(Config.runtime.api)
-    Database.init(Config.runtime.database)
-
-    # collect information for coins
-    table = 'Coin'
-    data = Database.exec(f"SELECT coin_id FROM '{table}'")
-    for coin in Api.get_coins():
-        if coin['rank'] > Config.coins.maxrank:
-            break
-        if (coin['id'],) not in data:
-            Database.exec(
-                f"INSERT INTO '{table}' "
-                f"VALUES ("
-                f"'{coin['id']}', "
-                f"'{coin['name']}', "
-                f"'{coin['symbol']}', "
-                f"'{coin['type']}', "
-                f"'{coin['rank']}', "
-                f"0)"
-            )
-
-    # update watchlist in database
-    table = 'Coin'
-    remaining_watchlist = Config.coins.watchlist
-    data = Database.exec(f"SELECT coin_id from {table} WHERE watch = 1")
-    if data:
-        for coin in data:
-            if coin[0] not in remaining_watchlist:
-                Database.exec(f"UPDATE {table} SET watch = 0 WHERE coin_id = '{coin[0]}'")
-            else:
-                remaining_watchlist.remove(coin[0])
-    for coin_id in remaining_watchlist:
-        Database.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
-
-    # while True:
-        # todo: fancy processing on database
-
-        # todo: show information of processing and 'the matrix'
-
-        # sleep interval
-        # sleep(60/Config.runtime.refreshrate)
-
-    Database.close()
-    Config.write()
+    return args.p
 
 
 if __name__ == "__main__":
     # run in console:
     # python cmdline_args.py --period 10 --fileName 'config.yml'
 
-    main()
+    # initialize runtime parameters and objects
+    period = cli()
 
-    # output exit information
-    print("\nexit program")
+    # init app and enter main loop
+    app = App(configfile='config.yml')
+    app.main()
+
+    print("\nexit app")
