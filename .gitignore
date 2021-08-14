@@ -1,5 +1,6 @@
-#PyCharm
+#IDE
 /venv/
+.vscode/
 .idea/*
 
 #Custom

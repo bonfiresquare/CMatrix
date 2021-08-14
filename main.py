@@ -63,7 +63,7 @@ def main():
         # sleep(60/Config.runtime.refreshrate)
 
     db.terminate()
-    Config.write_config()
+    Config.write()
 
 if __name__ == "__main__":
     # run in console:
