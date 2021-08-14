@@ -60,3 +60,8 @@ class Config (ABC):
         with open(Config._file, 'w') as file:
             yaml.dump(attributes, file)
             file.close()
+
+if __name__ == '__main__':
+    Config.init('config.yml')
+    c = Config._get_attribute()
+    print(c)
