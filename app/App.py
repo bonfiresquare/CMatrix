@@ -1,3 +1,4 @@
+import helper as h
 from .Api import Api
 from .Database import Database
 from config import Config
@@ -21,8 +22,7 @@ class App:
         Api.init(Config.runtime.api)
         Database.init(Config.runtime.database)
 
-    def main(self):
-        # collect information for coins
+    def get_coins_from_api(self):
         table = 'Coin'
         data = Database.exec(f"SELECT coin_id FROM '{table}'")
         for coin in Api.get_coins():
@@ -39,8 +39,9 @@ class App:
                     f"'{coin['rank']}', "
                     f"0)"
                 )
+        return
 
-        # update watchlist in database
+    def update_watchlist(self):
         table = 'Coin'
         remaining_watchlist = Config.coins.watchlist.copy()
         data = Database.exec(f"SELECT coin_id from {table} WHERE watch = 1")
@@ -52,6 +53,18 @@ class App:
                     remaining_watchlist.remove(coin[0])
         for coin_id in remaining_watchlist:
             Database.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
+        return
+
+
+    def main(self):
+
+        # test helper function
+        h.foo()
+        
+        # write coin information from api to database
+        self.get_coins_from_api()
+        # update watchlist in database
+        self.update_watchlist()
 
         # while True:
             # todo: fancy processing on database
