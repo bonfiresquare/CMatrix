@@ -1,14 +1,11 @@
 import os
 import sqlite3 as sqlite
+from abc import ABC
 
 
-class Database:
-    __instance = None
-
-    def __new__(cls, *args, **kwargs):
-        if not Database.__instance:
-            Database.__instance = object.__new__(cls)
-        return Database.__instance
+class Database (ABC):
+    _file = None
+    _session = None
 
     def __init__(self, path):
         self._path = path
@@ -18,7 +15,18 @@ class Database:
             self._session = sqlite.connect(self._path)
             self.build()
 
-    def build(self):
+    @staticmethod
+    def init(file):
+        Database._file = file
+        if os.path.exists(Database._file):
+            Database.connect()
+        else:
+            Database.connect()
+            Database.build()
+        return
+
+    @staticmethod
+    def build():
         tables = dict(
             Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, '
                  'type CHAR(1) NOT NULL, rank INT(2) NOT NULL, watch BOOLEAN NOT NULL',
@@ -26,26 +34,32 @@ class Database:
         )
         for name in tables.keys():
             query = f'CREATE TABLE {name} ({tables[name]})'
-            self._session.execute(query)
-        self._session.commit()
+            Database._session.execute(query)
+        Database._session.commit()
+        return
+    
+    @staticmethod
+    def connect():
+        Database._session = sqlite.connect(Database._file)
+        return
 
-    def terminate(self):
-        self._session.commit()
-        self._session.close()
-        self._session = None
-        self.__instance = None
+    @staticmethod
+    def close():
+        Database._session.commit()
+        Database._session.close()
+        return
 
-    def exec(self, query, halt=False):
+    @staticmethod
+    def exec(query, halt=False):
         try:
-            response = self._session.execute(query)
-            self._session.commit()
+            response = Database._session.execute(query)
+            Database._session.commit()
         except Exception as exception:
             if halt:
                 raise exception
             else:
                 print(f"Error while processing:\n\tQuery: '{query}'\n\tError: '{exception}'")
                 return exception
-
         data = []
         for row in response:
             data.append(row)

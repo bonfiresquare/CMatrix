@@ -1,5 +1,4 @@
 import argparse
-import yaml
 from Api import Api
 from Config import Config
 from Database import Database
@@ -21,16 +20,16 @@ def main():
     period, configfile = cli()
     Config.init(configfile)
     Api.init(Config.runtime.api)
-    db = Database(Config.runtime.database)
+    Database.init(Config.runtime.database)
 
     # collect information for coins
     table = 'Coin'
-    data = db.exec(f"SELECT coin_id FROM '{table}'")
+    data = Database.exec(f"SELECT coin_id FROM '{table}'")
     for coin in Api.get_coins():
         if coin['rank'] > Config.coins.maxrank:
             break
         if (coin['id'],) not in data:
-            db.exec(
+            Database.exec(
                 f"INSERT INTO '{table}' "
                 f"VALUES ("
                 f"'{coin['id']}', "
@@ -44,15 +43,15 @@ def main():
     # update watchlist in database
     table = 'Coin'
     remaining_watchlist = Config.coins.watchlist
-    data = db.exec(f"SELECT coin_id from {table} WHERE watch = 1")
+    data = Database.exec(f"SELECT coin_id from {table} WHERE watch = 1")
     if data:
         for coin in data:
             if coin[0] not in remaining_watchlist:
-                db.exec(f"UPDATE {table} SET watch = 0 WHERE coin_id = '{coin[0]}'")
+                Database.exec(f"UPDATE {table} SET watch = 0 WHERE coin_id = '{coin[0]}'")
             else:
                 remaining_watchlist.remove(coin[0])
     for coin_id in remaining_watchlist:
-        db.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
+        Database.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
 
     # while True:
         # todo: fancy processing on database
@@ -62,8 +61,9 @@ def main():
         # sleep interval
         # sleep(60/Config.runtime.refreshrate)
 
-    db.terminate()
+    Database.close()
     Config.write()
+
 
 if __name__ == "__main__":
     # run in console:
