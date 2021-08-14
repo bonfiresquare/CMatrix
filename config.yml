@@ -1,28 +1,28 @@
 coins:
+  exchange: cryptocom-exchange
   maxrank: 200
   watchlist:
-    - 'btc-bitcoin'
-    - 'eth-ethereum'
-    - 'usdt-tether'
-    - 'bnb-binance-coin'
-    - 'ada-cardano'
-    - 'xrp-xrp'
-    - 'hex-hex'
-    - 'doge-dogecoin'
-    - 'usdc-usd-coin'
-    - 'dot-polkadot'
-    - 'uni-uniswap'
-    - 'bch-bitcoin-cash'
-    - 'ltc-litecoin'
-    - 'sol-solana'
-    - 'busd-binance-usd'
-    - 'link-chainlink'
-    - 'icp-internet-computer'
-    - 'wbtc-wrapped-bitcoin'
-    - 'matic-polygon'
-    - 'xlm-stellar'
-
+  - btc-bitcoin
+  - eth-ethereum
+  - usdt-tether
+  - bnb-binance-coin
+  - ada-cardano
+  - xrp-xrp
+  - hex-hex
+  - doge-dogecoin
+  - usdc-usd-coin
+  - dot-polkadot
+  - uni-uniswap
+  - bch-bitcoin-cash
+  - ltc-litecoin
+  - sol-solana
+  - busd-binance-usd
+  - link-chainlink
+  - icp-internet-computer
+  - wbtc-wrapped-bitcoin
+  - matic-polygon
+  - xlm-stellar
 runtime:
+  api: https://api.coinpaprika.com/v1/
+  database: data.sqlite
   refreshrate: 12
-  database: 'data.sqlite'
-  api: 'https://api.coinpaprika.com/v1/'
