@@ -1,7 +1,7 @@
 from .Api import Api
 from config import Config
 from database import Database as DB
-from helper import helper as h
+from helper import *
 
 
 class App:
@@ -24,13 +24,13 @@ class App:
 
     def get_coins_from_api(self):
         table = 'Coin'
-        data = DB.f.get_coins('coin_id')
+        data = subselect(DB.f.get_coins('coin_id'), [0])
         params= []
         for i, coin in enumerate(Api.get_coins()):
             if i >= Config.coins.maxcount:
                 break
-            if (coin['id'],) not in data:
-                params.append([coin['id'], coin['name'], coin['symbol'], coin['type'], 0])
+            if coin['id'] not in data:
+                params.append(values(select(coin, ['id','name','symbol','type'])) + [0])
         if params:
             DB.exec( f"INSERT INTO '{table}' VALUES (?,?,?,?,?)", params, many=True)
         return

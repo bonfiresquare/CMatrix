@@ -1,7 +1,15 @@
 from typing import Union
 
+# returns a list of keys of the given dictionary
+def keys(input: dict) -> list:
+    return list(input.keys())
+
+# returns a list of values of the given dictionary
+def values(input: dict) -> list:
+    return list(input.values())
+
 # returns a subset of items of the given input type
-def select(input: Union[dict, list, tuple], selection: list):
+def select(input: Union[dict, list, tuple], selection: list, ):
     if isinstance(input, dict):
         return dict( (key, input[key]) for key in selection if key in input )
     else:
