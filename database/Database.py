@@ -1,9 +1,10 @@
 import os
 import sqlite3 as sqlite
-from abc import ABC
+import database.dbfunctions
 
 
-class Database (ABC):
+class Database:
+    f = database.dbfunctions
     _file = None
     _session = None
 
@@ -20,12 +21,16 @@ class Database (ABC):
     @staticmethod
     def build():
         tables = dict(
-            Coin='coin_id CHAR(1) PRIMARY KEY NOT NULL, name CHAR(1) NOT NULL, symbol CHAR(1) NOT NULL, '
-                 'type CHAR(1) NOT NULL, rank INT(2) NOT NULL, watch BOOLEAN NOT NULL',
-            Account='coin_id CHAR(1) PRIMARY KEY NOT NULL, amount DECIMAL(16) NOT NULL'
+            Coin= 'coin_id CHAR(1) PRIMARY KEY NOT NULL, '
+                  'name CHAR(1) NOT NULL, '
+                  'symbol CHAR(1) NOT NULL, '
+                  'type CHAR(1) NOT NULL, '
+                  'watch BOOLEAN NOT NULL',
+            Account= 'coin_id CHAR(1) PRIMARY KEY NOT NULL, '
+                     'amount DECIMAL(8) NOT NULL'
         )
-        for name in tables.keys():
-            query = f'CREATE TABLE {name} ({tables[name]})'
+        for name, columns in tables.items():
+            query = f'CREATE TABLE {name} ({columns})'
             Database._session.execute(query)
         Database._session.commit()
         return
@@ -42,17 +47,20 @@ class Database (ABC):
         return
 
     @staticmethod
-    def exec(query, halt=False):
+    def exec(query, params = (), many = False, halt=False):
         try:
-            response = Database._session.execute(query)
-            Database._session.commit()
+            if many:
+                response = Database._session.executemany(query, params)
+            else:
+                response = Database._session.execute(query, params)
+            if Database._session.in_transaction:
+                Database._session.commit()
+                return
         except Exception as exception:
             if halt:
                 raise exception
             else:
                 print(f"Error while processing:\n\tQuery: '{query}'\n\tError: '{exception}'")
                 return exception
-        data = []
-        for row in response:
-            data.append(row)
+        data = response.fetchall()
         return data

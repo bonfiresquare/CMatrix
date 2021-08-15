@@ -1,6 +1,6 @@
 coins:
   exchange: cryptocom-exchange
-  maxrank: 200
+  maxcount: 200
   watchlist:
   - btc-bitcoin
   - eth-ethereum

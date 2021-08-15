@@ -1,1 +1,1 @@
-from .helper import foo
+from .helper import *
