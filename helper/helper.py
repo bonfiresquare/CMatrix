@@ -52,4 +52,5 @@ def unwrap(input: list, output: list) -> list:
 
 # filters a list of dictionaries for specific values and returns them as list
 def where(input: Union[list, tuple], property: str, value) -> Union[list, tuple]:
-    return input.__class__(filter(lambda dict: dict[property] in value, input))
+    result = filter(lambda dict: dict[property] == value, input)
+    return input.__class__(result)
