@@ -26,7 +26,7 @@ class App:
         table = 'Coin'
         data = subselect(DB.f.get_coins('coin_id'), [0])
         params= []
-        for i, coin in enumerate(Api.get_coins()):
+        for i, coin in enumerate(Api.get_coin()):
             if i >= Config.coins.maxcount:
                 break
             if coin['id'] not in data:
