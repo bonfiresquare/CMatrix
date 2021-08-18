@@ -1,5 +1,4 @@
 import yaml
-from abc import ABC
 from types import MappingProxyType
 
 
@@ -7,7 +6,7 @@ class Attribute:
     pass
 
 
-class Config (ABC):
+class Config:
     _file = None
 
     @staticmethod
