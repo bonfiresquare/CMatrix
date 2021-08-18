@@ -42,9 +42,9 @@ class Api:
 
 
     @staticmethod
-    def get_coin_ohlc_latest(id: str, quotes: str = 'USD,BTC'):
+    def get_coin_ohlc_latest(id: str, quote: str = 'USD'):
         # allowed quote currencies: USD, BTC
-        params = {'quotes': quotes}
+        params = {'quote': quote}
         return Api.get(Api._base_url + f'coins/{id}/ohlcv/latest', params=params)
 
     @staticmethod
@@ -52,20 +52,20 @@ class Api:
                              start: str = str(int(dt.timestamp(dt.now() - td(days=7)))),
                              end: str = str(int(dt.timestamp(dt.now()))),
                              rows: int = 1,
-                             quotes:str = 'USD,BTC' ):
+                             quote:str = 'USD' ):
         # allowed time values:
             # RFC3999 (ISO-8601) eg. 2018-02-15T05:15:00Z
             # Simple date (yyyy-mm-dd) eg. 2018-02-15
             # Unix timestamp (in seconds) eg. 1518671700
         # allowed row limit: 1 - 366
         # allowed quote currencies: USD, BTC
-        params = {'start': start, 'end': end, 'limit': rows, 'quotes': quotes}
+        params = {'start': start, 'end': end, 'limit': rows, 'quote': quote}
         return Api.get(Api._base_url + f'coins/{id}/ohlcv/historical', params=params)
 
     @staticmethod
-    def get_coin_ohlc_today(id: str, quotes: str = 'USD,BTC'):
+    def get_coin_ohlc_today(id: str, quote: str = 'USD'):
         # allowed quote currencies: USD, BTC
-        params = {'quotes': quotes}
+        params = {'quote': quote}
         return Api.get(Api._base_url + f'coins/{id}/ohlcv/today', params=params)
 
     @staticmethod

@@ -1,4 +1,4 @@
-from .Api import Api
+from api import Api
 from config import Config
 from database import Database as DB
 from helper import *
@@ -26,9 +26,7 @@ class App:
         table = 'Coin'
         data = subselect(DB.f.get_coins('coin_id'), [0])
         params= []
-        for i, coin in enumerate(Api.get_coin()):
-            if i >= Config.coins.maxcount:
-                break
+        for coin in Api.get_coin():
             if coin['id'] not in data:
                 params.append(values(select(coin, ['id','name','symbol','type'])) + [0])
         if params:
