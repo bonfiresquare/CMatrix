@@ -22,21 +22,32 @@ class App:
         Api.init(Config.runtime.api)
         Database.init(Config.runtime.database)
 
-    def update_coins_from_api(self):
+    def update_coins(self):
         table = 'Currency'
         table_data = subselect(dbf.select(table,'Id'), [0])
         for coin in Api.get_coin():
             if coin['id'] in table_data:
                 dbf.update(table, transpose(coin, table), {'id': coin['id']})
             else:
-                dbf.insert(table, transpose(coin, table))
+                info = {}
+                if coin['is_active']:
+                    try:
+                        print(f"Fetching additional info for '{coin['name']}' ({coin['id']})")
+                        info = select(Api.get_coin(coin['id']), ['description','links'])
+                    except Exception as e:
+                        print(f"Error getting additional info for '{coin['name']}' ({coin['id']}): {e}")
+                dbf.insert(table, transpose({**coin, **info}, table))
         Database.commit()
         return
 
+    def update_coin_info():
+        table = 'Currency'
+
+
     def main(self):
-        # dbf.select('Currency', 'Id', {'type': 'coin', 'active': True, 'rank': 1})
+
         # write coin information from api to database
-        self.update_coins_from_api()
+        self.update_coins()
 
         # while True:
             # todo: fancy processing on database

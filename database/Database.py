@@ -8,9 +8,9 @@ import sqlite3 as sqlite
 class Database:
     fnc = functions
     str = structure
-    Columns = None
-    _file = None
-    _conn: sqlite.Connection = None
+    _file: str
+    _conn: sqlite.Connection
+    _columns: dict
 
     @staticmethod
     def init(file):
@@ -28,7 +28,7 @@ class Database:
     @staticmethod
     def load_schema():
         tables = list(item[0] for item in Database.exec('select tbl_name from sqlite_master WHERE type = "table"'))
-        Database.Columns = {t:list(item[1].lower() for item in Database.exec(f'PRAGMA table_info("{t}")')) for t in tables}
+        Database._columns = {t:list(item[1].lower() for item in Database.exec(f'PRAGMA table_info("{t}")')) for t in tables}
         return
 
     @staticmethod
