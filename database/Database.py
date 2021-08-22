@@ -1,12 +1,16 @@
+from typing import Union
+from database import functions
+from database import structure
 import os
 import sqlite3 as sqlite
-import database.dbfunctions
 
 
 class Database:
-    f = database.dbfunctions
+    fnc = functions
+    str = structure
+    Columns = None
     _file = None
-    _session = None
+    _conn: sqlite.Connection = None
 
     @staticmethod
     def init(file):
@@ -15,52 +19,49 @@ class Database:
             Database.connect()
         else:
             Database.connect()
-            Database.build()
-        return
-
-    @staticmethod
-    def build():
-        tables = dict(
-            Coin= 'coin_id CHAR(1) PRIMARY KEY NOT NULL, '
-                  'name CHAR(1) NOT NULL, '
-                  'symbol CHAR(1) NOT NULL, '
-                  'type CHAR(1) NOT NULL, '
-                  'watch BOOLEAN NOT NULL',
-            Account= 'coin_id CHAR(1) PRIMARY KEY NOT NULL, '
-                     'amount DECIMAL(8) NOT NULL'
-        )
-        for name, columns in tables.items():
-            query = f'CREATE TABLE {name} ({columns})'
-            Database._session.execute(query)
-        Database._session.commit()
+            Database.exec('PRAGMA foreign_keys = ON')
+            Database.str.build()
+        Database.exec('PRAGMA temp_store = 2')
+        Database.load_schema()
         return
     
     @staticmethod
+    def load_schema():
+        tables = list(item[0] for item in Database.exec('select tbl_name from sqlite_master WHERE type = "table"'))
+        Database.Columns = {t:list(item[1].lower() for item in Database.exec(f'PRAGMA table_info("{t}")')) for t in tables}
+        return
+
+    @staticmethod
     def connect():
-        Database._session = sqlite.connect(Database._file)
+        Database._conn = sqlite.connect(Database._file)
         return
 
     @staticmethod
     def close():
-        Database._session.commit()
-        Database._session.close()
+        Database.commit()
+        Database._conn.close()
         return
 
     @staticmethod
-    def exec(query, params = (), many = False, halt=False):
+    def commit():
+        Database._conn.commit()
+        return
+
+    @staticmethod
+    def exec(query, params = (), *,commit = False, halt=False) -> Union[Exception, list]:
         try:
-            if many:
-                response = Database._session.executemany(query, params)
-            else:
-                response = Database._session.execute(query, params)
-            if Database._session.in_transaction:
-                Database._session.commit()
-                return
+            response = Database._conn.execute(query, params)
         except Exception as exception:
             if halt:
                 raise exception
             else:
-                print(f"Error while processing:\n\tQuery: '{query}'\n\tError: '{exception}'")
+                print(f"\nError while processing:\n\tQuery: '{query}'\n\tError: '{exception}'\n")
                 return exception
-        data = response.fetchall()
-        return data
+        if commit and response.connection.in_transaction:
+            Database.commit()
+        return response.fetchall()
+    
+    @staticmethod
+    def enable_foreign_keys():
+        Database.exec('PRAGMA foreign_keys = ON', forcecommit=True)
+        return

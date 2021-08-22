@@ -1,6 +1,6 @@
 from api import Api
 from config import Config
-from database import Database as DB
+from database import Database, functions as dbf
 from helper import *
 
 
@@ -20,40 +20,23 @@ class App:
     def __init__(self, configfile):
         Config.init(configfile)
         Api.init(Config.runtime.api)
-        DB.init(Config.runtime.database)
+        Database.init(Config.runtime.database)
 
-    def get_coins_from_api(self):
-        table = 'Coin'
-        data = subselect(DB.f.get_coins('coin_id'), [0])
-        params= []
+    def update_coins_from_api(self):
+        table = 'Currency'
+        table_data = subselect(dbf.select(table,'Id'), [0])
         for coin in Api.get_coin():
-            if coin['id'] not in data:
-                params.append(values(select(coin, ['id','name','symbol','type'])) + [0])
-        if params:
-            DB.exec( f"INSERT INTO '{table}' VALUES (?,?,?,?,?)", params, many=True)
+            if coin['id'] in table_data:
+                dbf.update(table, transpose(coin, table), {'id': coin['id']})
+            else:
+                dbf.insert(table, transpose(coin, table))
+        Database.commit()
         return
-
-    def update_watchlist(self):
-        table = 'Coin'
-        remaining_watchlist = Config.coins.watchlist.copy()
-        data = DB.f.get_coins('coin_id', 'watch', 1)
-        if data:
-            for coin in data:
-                if coin[0] not in remaining_watchlist:
-                    DB.exec(f"UPDATE {table} SET watch = 0 WHERE coin_id = '{coin[0]}'")
-                else:
-                    remaining_watchlist.remove(coin[0])
-        for coin_id in remaining_watchlist:
-            DB.exec(f"UPDATE {table} SET watch = 1 WHERE coin_id = '{coin_id}'")
-        return
-
 
     def main(self):
-        
+        # dbf.select('Currency', 'Id', {'type': 'coin', 'active': True, 'rank': 1})
         # write coin information from api to database
-        self.get_coins_from_api()
-        # update watchlist in database
-        self.update_watchlist()
+        self.update_coins_from_api()
 
         # while True:
             # todo: fancy processing on database
@@ -63,5 +46,5 @@ class App:
             # sleep interval
             # sleep(60/Config.runtime.refreshrate)
 
-        DB.close()
+        Database.close()
         # Config.write()
